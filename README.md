@@ -38,6 +38,8 @@ func main() {
 		Set("Accept", "application/json").
 		Set("User-Agent", "httpez-example")
 
+	// Performs a GET request to the specified URL, reads and returns
+	// the entire response body, and automatically closes the response body.
 	body, _, err := client.GetAndReadBody("https://httpbin.org/headers")
 	if err != nil {
 		log.Fatal(err)
