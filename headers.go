@@ -6,14 +6,20 @@ import (
 )
 
 type Headers struct {
-	data http.Header
-	mu   sync.RWMutex
+	data   http.Header
+	client *Client
+	mu     sync.RWMutex
 }
 
-func NewHeaders() *Headers {
+func NewHeaders(client *Client) *Headers {
 	return &Headers{
-		data: make(http.Header),
+		data:   make(http.Header),
+		client: client,
 	}
+}
+
+func (h *Headers) Client() *Client {
+	return h.client
 }
 
 func (h *Headers) Get(key string) string {
@@ -40,5 +46,12 @@ func (h *Headers) Del(key string) *Headers {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	h.data.Del(key)
+	return h
+}
+
+func (h *Headers) Clear() *Headers {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	h.data = make(http.Header)
 	return h
 }

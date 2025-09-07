@@ -7,23 +7,26 @@ import (
 	"github.com/etaaa/httpez"
 )
 
+// Example struct to represent the JSON payload.
+type CoffeeOrder struct {
+	CoffeeType string `json:"coffeeType"`
+	SugarCubes int    `json:"sugarCubes"`
+}
+
 func main() {
 	// Create a new client.
 	client := httpez.NewClient()
 
-	// Set custom headers for all requests made with this client.
-	client.Headers().
-		Set("User-Agent", "httpez-example")
-
-	// Prepare the JSON payload.
-	payload := Payload{
-		Name:  "httpez",
-		Value: 1,
+	// Prepare the JSON payload to be sent in the request body.
+	payload := CoffeeOrder{
+		CoffeeType: "Melange",
+		SugarCubes: 1,
 	}
 
-	// Perform a POST request to the specified URL with the JSON payload,
-	// read and return the entire response body, and automatically close
-	// the response body.
+	// Perform a POST request. The WithHeader and WithJSON methods are used
+	// to fluently configure the request with a custom header and a JSON body.
+	// WithJSON automatically handles marshaling the payload and setting the
+	// correct Content-Type header.
 	body, _, err := client.
 		Post("https://httpbin.org/post", nil).
 		WithHeader("X-Request-ID", "917dfcee-7155-416d-ab65-35b9e1a1ecd1").
@@ -34,10 +37,4 @@ func main() {
 	}
 
 	fmt.Println(string(body))
-}
-
-// Example struct to represent the JSON payload.
-type Payload struct {
-	Name  string `json:"name"`
-	Value int    `json:"value"`
 }

@@ -10,17 +10,14 @@ import (
 )
 
 func main() {
-	// Create a new client.
-	client := httpez.NewClient()
+	// Create a new client and configure it with a custom middleware chain.
+	// Middlewares are executed in the order they are added.
+	client := httpez.NewClient().
+		WithMiddleware(LoggerMiddleware()).
+		WithMiddleware(AuthMiddleware("eyJhbGciOiJIUzI1NiIsInR5cCI6Ik..."))
 
-	// Use the custom middlewares. The order matters: LoggerMiddleware will
-	// execute first, then AuthMiddleware, and finally the request will be sent.
-	client.
-		Use(LoggerMiddleware()).
-		Use(AuthMiddleware("eyJhbGciOiJIUzI1NiIsInR5cCI6Ik..."))
-
-	// Performs a GET request to the specified URL, reads and returns
-	// the entire response body, and automatically closes the response body.
+	// Perform a GET request. This request will first pass through the
+	// LoggerMiddleware, then the AuthMiddleware, before being sent.
 	body, _, err := client.
 		Get("https://httpbin.org/get").
 		AsBytes()
@@ -31,6 +28,7 @@ func main() {
 	fmt.Println(string(body))
 }
 
+// LoggerMiddleware logs the start and end of a request, including its duration.
 func LoggerMiddleware() httpez.Middleware {
 	return func(next http.RoundTripper) http.RoundTripper {
 		return httpez.RoundTripperFunc(func(req *http.Request) (*http.Response, error) {
@@ -43,6 +41,7 @@ func LoggerMiddleware() httpez.Middleware {
 	}
 }
 
+// AuthMiddleware adds a bearer token to the Authorization header if it's not already set.
 func AuthMiddleware(token string) httpez.Middleware {
 	return func(next http.RoundTripper) http.RoundTripper {
 		return httpez.RoundTripperFunc(func(req *http.Request) (*http.Response, error) {

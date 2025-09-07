@@ -3,22 +3,34 @@ package httpez
 import (
 	"io"
 	"net/http"
+	"net/url"
 )
 
 type Client struct {
 	*http.Client
+	baseURL     string
 	headers     *Headers
 	middlewares []Middleware
 }
 
 func NewClient() *Client {
 	c := &Client{
-		Client:  &http.Client{},
-		headers: NewHeaders(),
+		Client: &http.Client{},
 	}
 
-	c.Use(c.headersMiddleware())
+	c.headers = NewHeaders(c)
 
+	c.WithMiddleware(c.headersMiddleware())
+
+	return c
+}
+
+func (c *Client) BaseURL() string {
+	return c.baseURL
+}
+
+func (c *Client) WithBaseURL(baseURL string) *Client {
+	c.baseURL = baseURL
 	return c
 }
 
@@ -26,13 +38,36 @@ func (c *Client) Headers() *Headers {
 	return c.headers
 }
 
-func (c *Client) Use(m Middleware) *Client {
+func (c *Client) WithHeader(key, value string) *Client {
+	c.headers.Add(key, value)
+	return c
+}
+
+func (c *Client) WithMiddleware(m Middleware) *Client {
 	c.middlewares = append(c.middlewares, m)
 	return c
 }
 
-func (c *Client) Request(method, url string, body io.Reader) *RequestBuilder {
-	req, err := http.NewRequest(method, url, body)
+func (c *Client) Request(method, urlStr string, body io.Reader) *RequestBuilder {
+	finalURL := urlStr
+
+	if c.baseURL != "" {
+		reqURL, err := url.Parse(urlStr)
+		if err != nil {
+			return &RequestBuilder{client: c, err: err}
+		}
+
+		if !reqURL.IsAbs() {
+			baseURL, err := url.Parse(c.baseURL)
+			if err != nil {
+				return &RequestBuilder{client: c, err: err}
+			}
+			finalURL = baseURL.ResolveReference(reqURL).String()
+		}
+	}
+
+	req, err := http.NewRequest(method, finalURL, body)
+
 	return &RequestBuilder{
 		client: c,
 		req:    req,
