@@ -9,12 +9,17 @@ import (
 	"strings"
 )
 
+// A RequestBuilder is a fluent API for constructing and executing a single HTTP
+// request. It allows for method chaining to easily configure request headers,
+// query parameters, and the request body.
 type RequestBuilder struct {
 	client *Client
 	req    *http.Request
 	err    error
 }
 
+// WithHeader adds a header to the request. This header is specific to this single
+// request and will not be carried over to other requests made by the client.
 func (rb *RequestBuilder) WithHeader(key, value string) *RequestBuilder {
 	if rb.err != nil {
 		return rb
@@ -24,6 +29,7 @@ func (rb *RequestBuilder) WithHeader(key, value string) *RequestBuilder {
 	return rb
 }
 
+// WithQuery adds a URL query parameter to the request.
 func (rb *RequestBuilder) WithQuery(key, value string) *RequestBuilder {
 	if rb.err != nil {
 		return rb
@@ -35,6 +41,8 @@ func (rb *RequestBuilder) WithQuery(key, value string) *RequestBuilder {
 	return rb
 }
 
+// WithJSON marshals the given value v into a JSON body and sets the Content-Type header
+// to application/json.
 func (rb *RequestBuilder) WithJSON(v interface{}) *RequestBuilder {
 	if rb.err != nil {
 		return rb
@@ -51,6 +59,8 @@ func (rb *RequestBuilder) WithJSON(v interface{}) *RequestBuilder {
 	return rb
 }
 
+// WithForm sets the request body to the URL-encoded form data and sets the Content-Type
+// header to application/x-www-form-urlencoded.
 func (rb *RequestBuilder) WithForm(data url.Values) *RequestBuilder {
 	if rb.err != nil {
 		return rb
@@ -61,6 +71,8 @@ func (rb *RequestBuilder) WithForm(data url.Values) *RequestBuilder {
 	return rb
 }
 
+// Do executes the HTTP request. It applies all configured middlewares before performing
+// the RoundTrip.
 func (rb *RequestBuilder) Do() (*http.Response, error) {
 	if rb.err != nil {
 		return nil, rb.err
@@ -77,6 +89,9 @@ func (rb *RequestBuilder) Do() (*http.Response, error) {
 	return transport.RoundTrip(rb.req)
 }
 
+// AsBytes executes the request and reads the entire response body into a byte slice. It
+// returns the body, the http.Response, and any error encountered. The response body is
+// automatically closed.
 func (rb *RequestBuilder) AsBytes() ([]byte, *http.Response, error) {
 	resp, err := rb.Do()
 	if err != nil {
@@ -91,6 +106,8 @@ func (rb *RequestBuilder) AsBytes() ([]byte, *http.Response, error) {
 	return body, resp, nil
 }
 
+// AsJSON executes the request, reads the response body, and unmarshals the JSON content into
+// the provided interface v. The response body is automatically closed.
 func (rb *RequestBuilder) AsJSON(v interface{}) (*http.Response, error) {
 	body, resp, err := rb.AsBytes()
 	if err != nil {

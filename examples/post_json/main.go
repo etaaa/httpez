@@ -29,7 +29,6 @@ func main() {
 	// correct Content-Type header.
 	body, _, err := client.
 		Post("https://httpbin.org/post", nil).
-		WithHeader("X-Request-ID", "917dfcee-7155-416d-ab65-35b9e1a1ecd1").
 		WithJSON(payload).
 		AsBytes()
 	if err != nil {
