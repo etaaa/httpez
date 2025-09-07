@@ -21,7 +21,9 @@ func main() {
 
 	// Performs a GET request to the specified URL, reads and returns
 	// the entire response body, and automatically closes the response body.
-	body, _, err := client.GetAndReadBody("https://httpbin.org/headers")
+	body, _, err := client.
+		Get("https://httpbin.org/get").
+		AsBytes()
 	if err != nil {
 		log.Fatal(err)
 	}

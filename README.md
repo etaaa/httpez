@@ -5,9 +5,9 @@ httpez is a lightweight, user-friendly wrapper around Go’s standard net/http c
 ## Features
 - Drop-in replacement for `http.Client`
 - Global headers applied to all requests.
+- Fluent API for building clients and requests with a clean, chainable interface.
+- Convenient response helpers: Use methods like `AsBytes` and `AsJSON` to easily fetch response bodies.
 - Extensible middleware system for request and response logic.
-- Convenient `*AndReadBody` helpers for quickly fetching response bodies.
-- Fluent API for building clients and requests
 
 ## Installation
 
@@ -17,7 +17,7 @@ go get github.com/etaaa/httpez
 
 ## Usage
 
-Here is a basic example demonstrating how to create a client and make a simple request with headers.
+This example shows how to create a client, set global headers, and perform a GET request with a query parameter.
 
 ```golang
 package main
@@ -38,7 +38,13 @@ func main() {
 		Set("Accept", "application/json").
 		Set("User-Agent", "httpez-example")
 
-	body, _, err := client.GetAndReadBody("https://httpbin.org/headers")
+	// Performs a GET request to the specified URL with a query parameter,
+	// reads and returns the entire response body, and automatically closes
+	// the response body.
+	body, _, err := client.
+		Get("https://httpbin.org/get").
+		WithQuery("foo", "bar").
+		AsBytes()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,7 +52,8 @@ func main() {
 	fmt.Println(string(body))
 }
 ```
-For more detailed examples, including how to use middleware, please see the `examples` folder.
+
+For more detailed examples, including JSON POST requests, middleware, or response parsing, please see the `examples` folder.
 
 ## Contributing
 

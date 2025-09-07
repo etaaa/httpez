@@ -16,9 +16,13 @@ func main() {
 		Set("Accept", "application/json").
 		Set("User-Agent", "httpez-example")
 
-	// Performs a GET request to the specified URL, reads and returns
-	// the entire response body, and automatically closes the response body.
-	body, _, err := client.GetAndReadBody("https://httpbin.org/headers")
+	// Performs a GET request to the specified URL with a query parameter,
+	// reads and returns the entire response body, and automatically closes
+	// the response body.
+	body, _, err := client.
+		Get("https://httpbin.org/get").
+		WithQuery("foo", "bar").
+		AsBytes()
 	if err != nil {
 		log.Fatal(err)
 	}
