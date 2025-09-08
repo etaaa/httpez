@@ -1,5 +1,11 @@
 # httpez
 
+[![Go Test](https://github.com/etaaa/httpez/actions/workflows/test.yml/badge.svg)](https://github.com/etaaa/httpez/actions/workflows/test.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/etaaa/httpez)](https://goreportcard.com/report/github.com/etaaa/httpez)
+[![Go Reference](https://pkg.go.dev/badge/github.com/etaaa/httpez.svg)](https://pkg.go.dev/github.com/etaaa/httpez)
+[![Go Version](https://img.shields.io/badge/go-1.25+-blue.svg)](https://golang.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 httpez is a lightweight, user-friendly wrapper around Go’s standard net/http client. It simplifies common HTTP tasks with a fluent, chainable API while remaining fully compatible with the standard library.
 
 ## Features
