@@ -1,6 +1,7 @@
 package httpez
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"net/url"
@@ -81,7 +82,7 @@ func (c *Client) Request(method, urlStr string, body io.Reader) *RequestBuilder 
 		}
 	}
 
-	req, err := http.NewRequest(method, finalURL, body)
+	req, err := http.NewRequestWithContext(context.Background(), method, finalURL, body)
 
 	return &RequestBuilder{
 		client: c,

@@ -2,6 +2,7 @@ package httpez
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -26,6 +27,16 @@ func (rb *RequestBuilder) WithHeader(key, value string) *RequestBuilder {
 	}
 
 	rb.req.Header.Add(key, value)
+	return rb
+}
+
+// WithContext replaces the request's default context with the provided ctx.
+// This is used to control cancellation and deadlines for a single HTTP request.
+func (rb *RequestBuilder) WithContext(ctx context.Context) *RequestBuilder {
+	if rb.err != nil {
+		return rb
+	}
+	rb.req = rb.req.WithContext(ctx)
 	return rb
 }
 
